@@ -1,4 +1,4 @@
-import prompts.prompts as prompt_templates
+import prompts.prompt_templates as prompts
 import prompts.automated_metrics as automated_metrics
 from abc import ABC, abstractmethod
 
@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 def get_prompt(metric_name, prompt_name, context, justice, remark, remark1=None):
     # get system prompt from classifier name
     metric_metadata = automated_metrics.METADATA[metric_name]
-    prompt_definition = prompt_templates.PROMPT_TEMPLATES[prompt_name]
+    prompt_definition = prompts.TEMPLATES[prompt_name]
 
     system_prompt = prompt_definition.format(
         classifier_name=metric_name,
