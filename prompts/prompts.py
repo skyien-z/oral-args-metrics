@@ -30,22 +30,6 @@ OPENING_STATEMENT_PROMPT = """You are a model for analyzing the quality of Supre
     Your output should ONLY CONTAIN THE CLASSIFICATION:
     <Classification>"""
 
-PARDONTHEINTERRUPTION_PROMPT = """You are a model for analyzing the quality of Supreme Court oral arguments.
-    You will be presented with a turn-by-turn transcript of an oral argument ("context") up until the current turn. {classification_type}
-    Your classification task is entitled '{classifier_name}'. Specifically, we want to know: {prompt}
-
-    {instructions}
-
-    The classification task will be presented in something like the following format:
-    context: "<speaker>justice</speaker><text>statement</text><speaker>advocate</speaker><text>argument</text>"
-    justice: <justice last name>
-    remark: "--well okay so we find this difficult but why."
-
-    The classification should only apply to the remark. Output your single classification {buckets}.
-
-    Your output should ONLY CONTAIN THE CLASSIFICATION:
-    <Classification>"""
-
 DISTRIBUTIONAL = "You will then be presented with a justice's name (\"justice\") and the remark they make in current turn (\"remark\")."
 COMPARATIVE = "You will then be presented with a justice's name (\"justice\") and two remarks that they might make in the current turn (\"remark\" and \"remark1\")."
 
@@ -54,5 +38,4 @@ PROMPT_TEMPLATES =  {
     "MULTITURN_COMPARATIVE": MULTITURN_PROMPT.replace("{classification_type}", COMPARATIVE),
     "OS_DISTRIBUTIONAL": OPENING_STATEMENT_PROMPT.replace("{classification_type}", DISTRIBUTIONAL),
     "OS_COMPARATIVE": OPENING_STATEMENT_PROMPT.replace("{classification_type}", COMPARATIVE),
-    "PARDONTHEINTERRUPTION": PARDONTHEINTERRUPTION_PROMPT.replace("{classification_type}", DISTRIBUTIONAL)
 }

@@ -1,39 +1,27 @@
-import prompts.prompt_templates as prompt_templates
-import prompts.classifier_definitions as classifier_definitions
+import prompts.prompts as prompt_templates
+import prompts.automated_metrics as automated_metrics
 from abc import ABC, abstractmethod
 
 
-def get_default_prompt(classifier_name, prompt_name, context, justice, remark):
+def get_prompt(metric_name, prompt_name, context, justice, remark, remark1=None):
     # get system prompt from classifier name
-    classifier_definition = classifier_definitions.DISTRIBUTION_METRICS[classifier_name]
+    metric_metadata = automated_metrics.METADATA[metric_name]
     prompt_definition = prompt_templates.PROMPT_TEMPLATES[prompt_name]
 
     system_prompt = prompt_definition.format(
-        classifier_name=classifier_name,
-        prompt=classifier_definition["prompt"],
-        instructions=classifier_definition["instructions"],
-        buckets=classifier_definition["buckets"]
+        classifier_name=metric_name,
+        prompt=metric_metadata["prompt"],
+        instructions=metric_metadata["instructions"],
+        buckets=metric_metadata["buckets"]
     )
-    # return consolidated prompts
+
+    if metric_metadata["metric_type"] == "point-wise":
+        return [{"role": "system", "content": system_prompt},
+                {"role": "user",
+                 "content": f"""context: {context}\njustice: {justice}\nremark: {remark}\nremark1: {remark1}"""}]
+
     return [{"role": "system", "content": system_prompt},
             {"role": "user", "content": f"""context: {context}\njustice: {justice}\nremark: {remark}"""}]
-
-
-def get_comparative_prompt(classifier_name, prompt_name, context, justice, remark, remark1):
-    # get system prompt from classifier name
-    classifier_definition = classifier_definitions.COMPARATIVE_CLASSIFICATION_SPECS[classifier_name]
-    prompt_definition = prompt_templates.PROMPT_TEMPLATES[prompt_name]
-
-    system_prompt = prompt_definition.format(
-        classifier_name=classifier_name,
-        prompt=classifier_definition["prompt"],
-        instructions=classifier_definition["instructions"],
-        buckets=classifier_definition["buckets"]
-    )
-    # return consolidated prompts
-    return [{"role": "system", "content": system_prompt},
-            {"role": "user",
-             "content": f"""context: {context}\njustice: {justice}\nremark: {remark}\nremark1: {remark1}"""}]
 
 
 class BaseModel(ABC):
@@ -41,14 +29,8 @@ class BaseModel(ABC):
     def generate(self, prompt: str) -> str:
         pass
 
-    def classify_aggregate_metric(self, classifier_name, prompt_name, context, justice, remark):
-        messages = get_default_prompt(classifier_name, prompt_name, context, justice, remark)
-        response = self.generate(messages)  # calls child class's concrete implementation
-        print(response)
-        return response
-
-    def classify_comparative_metric(self, classifier_name, prompt_name, context, justice, remark, remark1):
-        messages = get_comparative_prompt(classifier_name, prompt_name, context, justice, remark, remark1)
+    def classify_metric(self, classifier_name, prompt_name, context, justice, remark):
+        messages = get_prompt(classifier_name, prompt_name, context, justice, remark)
         response = self.generate(messages)  # calls child class's concrete implementation
         print(response)
         return response
