@@ -6,16 +6,16 @@ from abc import ABC, abstractmethod
 def get_prompt(metric_name, prompt_name, context, justice, remark, remark1=None):
     # get system prompt from classifier name
     metric_metadata = automated_metrics.METADATA[metric_name]
-    prompt_definition = prompts.TEMPLATES[prompt_name]
+    template = prompts.TEMPLATES[prompt_name]
 
-    system_prompt = prompt_definition.format(
+    system_prompt = template.format(
         classifier_name=metric_name,
         prompt=metric_metadata["prompt"],
         instructions=metric_metadata["instructions"],
         buckets=metric_metadata["buckets"]
     )
 
-    if metric_metadata["metric_type"] == "point-wise":
+    if metric_metadata["metric_type"] == "comparative":
         return [{"role": "system", "content": system_prompt},
                 {"role": "user",
                  "content": f"""context: {context}\njustice: {justice}\nremark: {remark}\nremark1: {remark1}"""}]

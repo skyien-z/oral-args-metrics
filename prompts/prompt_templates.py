@@ -1,6 +1,6 @@
-POINT_WISE = """You are a model for analyzing the quality of Supreme Court oral arguments.
-    You will be presented with a turn-by-turn transcript of an oral argument ("context") up until the current turn. {classification_type}
-    Your classification task is entitled '{classifier_name}'. Specifically, we want to know: {prompt}
+PROMPT = """You are a model for analyzing the quality of Supreme Court oral arguments. You will be presented with a 
+turn-by-turn transcript of an oral argument ("context") up until the current turn. {classification_type} Your 
+classification task is entitled '{classifier_name}'. Specifically, we want to know: {prompt} 
 
     {instructions}
 
@@ -14,10 +14,12 @@ POINT_WISE = """You are a model for analyzing the quality of Supreme Court oral 
     Your output should ONLY CONTAIN THE CLASSIFICATION:
     <Classification>"""
 
-DISTRIBUTIONAL = "You will then be presented with a justice's name (\"justice\") and the remark they make in current turn (\"remark\")."
-COMPARATIVE = "You will then be presented with a justice's name (\"justice\") and two remarks that they might make in the current turn (\"remark\" and \"remark1\")."
+DISTRIBUTIONAL = "You will then be presented with a justice's name (\"justice\") and the remark they make in " \
+                      "current turn (\"remark\"). "
+COMPARATIVE = "You will then be presented with a justice's name (\"justice\") and two remarks that they might " \
+                   "make in the current turn (\"remark\" and \"remark1\"). "
 
 TEMPLATES = {
-    "MULTITURN_DISTRIBUTIONAL": POINT_WISE.replace("{classification_type}", DISTRIBUTIONAL),
-    "MULTITURN_COMPARATIVE": POINT_WISE.replace("{classification_type}", COMPARATIVE),
+    "DISTRIBUTIONAL": PROMPT.replace("{classification_type}", DISTRIBUTIONAL),
+    "COMPARATIVE": PROMPT.replace("{classification_type}", COMPARATIVE),
 }
