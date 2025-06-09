@@ -10,7 +10,7 @@ class OpenAIModel(BaseModel):
             api_version="2024-02-01"
         )
 
-    def generate(self, messages: str):
+    def generate(self, messages: str) -> str:
         response = self.client.chat.completions.create(
             model="gpt-4o",
             temperature=0.0,

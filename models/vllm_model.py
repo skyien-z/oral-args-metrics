@@ -21,7 +21,7 @@ class VllmModel(BaseModel):
                 max_tokens=100
         )
 
-    def generate(self, messages: str):
+    def generate(self, messages: str) -> str:
         formatted_prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
         outputs = self.llm.generate(formatted_prompt, self.sampling_params)
-        return outputs[0].outputs[0].text.replace(".", "")
+        return outputs[0].outputs[0].text  # .replace(".", "") -- add back if necessary, depending on generation

@@ -1,5 +1,5 @@
 METADATA = {
-    "CLASSIFY_VALENCE": {
+    "VALENCE": {
         "prompt": "How competitive/cooperative is the justice's remark in the current turn?",
         "instructions": """Your classification should choose from a likert scale ranging from 'Very Competitive' to 'Very Cooperative':
         - "Competitive": The remark expresses clear justice displeasure with the advocate’s last statement in the oral argument context.
@@ -10,7 +10,7 @@ METADATA = {
         "buckets": "(Competitive, Slightly Competitive, Neutral, Slightly Cooperative, Cooperative)",
         "metric_type": "distributional"
     },
-    "CLASSIFY_LEGALBENCH": {
+    "LEGALBENCH": {
         "prompt": "Which LegalBench category does the justice's remark, made in the current turn, fall into?",
         "instructions": """Your classification should choose from the following LegalBench categories:
         - 'Background': Seeks factual or procedural information missing or unclear in the briefs.
@@ -23,7 +23,7 @@ METADATA = {
         "buckets": "(Background, Clarification, Implications, Support, Criticism, Communicate, Humor)",
         "metric_type": "distributional"
     },
-    "CLASSIFY_METACOG":  {
+    "METACOG":  {
         "prompt": "Which MetaCog category does the justice's remark, made in the current turn, fall into?",
         "instructions": """Your classification should choose from the following MetaCog categories:
         - 'statutory_interpretation': Related to the interpretation and application of statutes
@@ -36,7 +36,7 @@ METADATA = {
         "buckets": "(statutory_interpretation, precedent_and_doctrine, case_facts_and_context, judicial_role_and_review, argumentation_and_clarification, constitutional_issues, procedural_matters)",
         "metric_type": "distributional"
     },
-    "CLASSIFY_STETSON":  {
+    "STETSON":  {
         "prompt": "Which Stetson category does the justice's remark, made in the current turn, fall into?",
         "instructions": """Your classification should choose from the following Stetson categories:
         - 'elicit_information': A judge may ask about the facts in the evidence or record, or about authorities, parties, or background.
@@ -87,15 +87,15 @@ METADATA = {
         "buckets": "(Yes, No, NA)",
         "metric_type": "distributional"
     },
-    "CLASSIFY_SIMILARITY_ON_RUBRIC": {
+    "RUBRIC_SIMILARITY": {
         "prompt": "How similar are remark and remark1 to each other in the current turn?",
-        "instructions": """Choose your response from the follow categories:
-        - '-2': remark and remark1 are very dissimilar.
-        - '-1': remark and remark1 are dissimilar.
-        - '0': remark and remark1 are neither similar nor dissimilar.
-        - '1': remark and remark1 are similar.
-        - '2': remark and remark1 are very similar.""",
-        "buckets": "(-2, -1, 0, 1, 2)",
+        "instructions": """We define similarity on four axis: topic, diction, specificity, and illocutionary act type. Choose your response from the follow categories:
+        - '1': So long as remark and the remark2 have different topics, we score 1, regardless of the other three categories.
+        - '2': If only the topic is the same between remark and remark2, we score 2.
+        - '3': If the topic and one of the other categories (one of diction, specificity, or illocutionary act type) is the same between remark and remark2, we score 3.
+        - '4': If the topic and two of the other categories (two of diction, specificity, or illocutionary act type) are the same between remark and remark2, we score 4.
+        - '5': If all categories between the generated and the actual question are the same, we score 5.""",
+        "buckets": "(1, 2, 3, 4, 5)",
         "metric_type": "comparative"
     }
 }
