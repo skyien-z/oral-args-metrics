@@ -26,18 +26,18 @@ def main():
     aggregate_metrics = {"VALENCE": "valence", "LEGALBENCH": "legalbench", "METACOG": "metacog", "STETSON": "stetson",
                          "ARGUMENT_CONSISTENCY_AND_CORRECTNESS": "arg_consistency", "SYCOPHANCY": "sycophancy",
                          "CONSISTENCY_WITH_STATUTORY_INTERPRETATION": "statutory_interp",
-                         "CONSISTENCY_WITH_POLITICAL_IDEOLOGY": "political_ideology",
-                         "RUBRIC_SIMILARITY": "rubric_similarity"}
+                         "CONSISTENCY_WITH_POLITICAL_IDEOLOGY": "political_ideology"}
+                        #  "RUBRIC_SIMILARITY": "rubric_similarity"}
 
     # add os metrics
     df = pd.read_csv(args.input_csv_path)  # read in jsonl
     for metric in aggregate_metrics.keys():
-        df[f"{args.model_path}_{aggregate_metrics[metric]}"] = df.apply(
+        df[f"{args.model}_{aggregate_metrics[metric]}"] = df.apply(
             lambda row: model.classify_metric(metric,
-                                              row["opening_with_facts_legal_question"],
+                                              row["context"],
                                               row["justice"],
                                               row["question_text"]), axis=1)
-
+    print(df)
     df.to_csv(args.output_csv_path, index=False)
 
 

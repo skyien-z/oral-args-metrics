@@ -18,7 +18,7 @@ class VllmModel(BaseModel):
                 top_k=1,
                 top_p=1.0,
                 repetition_penalty=1.0,
-                max_tokens=100
+                max_tokens=500
         )
 
     def generate(self, messages: str) -> str:

@@ -1,9 +1,11 @@
+# !IMPORTANT THIS IS THE PROMPT FOR OUR CONTEXT-BASED DIALOGUE STYLE FINE-TUNING
+# WE'LL NEED A SLIGHT ALTERATION TO THIS PROMPT FOR BASELINE MODEL METRICS [Maybe separate case facts and question from the transcript?]
 PROMPT = """You are a model for analyzing the quality of Supreme Court oral arguments. You will be presented with a 
 turn-by-turn transcript of an oral argument ("context") up until the current turn. {classification_type} Your 
 classification task is entitled '{classifier_name}'. Specifically, we want to know: {prompt} 
 
     {instructions}
-
+    
     The classification task will be presented in something like the following format:
     context: [{{'role': 'system', 'content': ""You are a legal expert trained to simulate Supreme Court oral arguments.\n\nFACTS_OF_THE_CASE:\n<Case Facts>\n\nLEGAL_QUESTION:\n<Legal Question>""}}, {{'role': 'respondent', 'content': ""<Opening Statement>.""}}, {{'role': 'justice_<Justice Name>', 'content': ""<Question>""}}, {{'role': 'respondent', 'content': ""<Response>""}}]
     justice: justice_<Justice Name>

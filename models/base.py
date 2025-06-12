@@ -19,7 +19,7 @@ def get_prompt(metric_name: str, context: str, justice: str, remark: str, remark
     messages = [{"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"""context: {context}\njustice: {justice}\nremark: {remark}"""}]
 
-    # add the second remark if the metric is comparative
+    # add the second remark to the prompt if the metric is comparative
     if metric_metadata["metric_type"] == "comparative":
         messages[1]["content"] += f"""\nremark1: {remark1}"""
 
