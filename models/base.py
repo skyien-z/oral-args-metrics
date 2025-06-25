@@ -3,7 +3,7 @@ import prompts.automated_metrics as automated_metrics
 from abc import ABC, abstractmethod
 
 
-def get_prompt(metric_name: str, context: str, justice: str, remark: str, remark1: str) -> str:
+def get_metrics_prompt(metric_name: str, context: str, justice: str, remark: str, remark1: str) -> str:
     # get system prompt from metric name; template type is stored in metric metadata
     metric_metadata = automated_metrics.METADATA[metric_name]
     template = prompts.TEMPLATES[metric_metadata["metric_type"]]
@@ -32,7 +32,7 @@ class BaseModel(ABC):
         pass
 
     def classify_metric(self, classifier_name: str, context: str, justice: str, remark: str, remark1=None) -> str:
-        messages = get_prompt(classifier_name, context, justice, remark, remark1)
+        messages = get_metrics_prompt(classifier_name, context, justice, remark, remark1)
         response = self.generate(messages)  # calls child class's concrete implementation
         print(response)
         return response
