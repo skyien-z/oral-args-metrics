@@ -1,14 +1,4 @@
-
-DEFAULT_PROMPT = '''{role}
-    Facts of the Case: {facts_of_the_case}
-    Legal Question: {legal_question}
-
-You will be presented with the transcript of the oral argument up until the current turn. You will then have the floor. Your task is to generate the next remark, question or statement, that furthers the oral argument. 
-{emphasis}
-
-Output your remark and ONLY your remark.'''
-
-METADATA = {
+QUESTION_GENERATION_METADATA = {
     "SCOTUS_DEFAULT": {
         "role": "You are Supreme Court Justice {justice_name}. You are currently in a Supreme Court oral argument with the following case:",
         "emphasis": "Your remark should flow naturally within the context you've been given and should be consistent with your style of statutory interpretation and known politics. What matters most is that you fully flesh out an advocate's argument."

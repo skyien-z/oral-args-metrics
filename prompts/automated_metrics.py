@@ -1,4 +1,4 @@
-METADATA = {
+METRICS_METADATA = {
     "VALENCE": {
         "prompt": "How competitive/cooperative is the justice's remark in the current turn?",
         "instructions": """Your classification should choose from a likert scale ranging from 'Very Competitive' to 'Very Cooperative':

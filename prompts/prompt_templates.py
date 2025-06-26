@@ -1,6 +1,6 @@
 # !IMPORTANT THIS IS THE PROMPT FOR OUR CONTEXT-BASED DIALOGUE STYLE FINE-TUNING
 # WE'LL NEED A SLIGHT ALTERATION TO THIS PROMPT FOR BASELINE MODEL METRICS [Maybe separate case facts and question from the transcript?]
-PROMPT = """You are a model for analyzing the quality of Supreme Court oral arguments. You will be presented with a 
+METRIC_PROMPT = """You are a model for analyzing the quality of Supreme Court oral arguments. You will be presented with a 
 turn-by-turn transcript of an oral argument ("context") up until the current turn. {classification_type} Your 
 classification task is entitled '{classifier_name}'. Specifically, we want to know: {prompt} 
 
@@ -26,7 +26,16 @@ COMPARATIVE_INSTRUCTION = "You will then be presented with a justice's name (\"j
 REMARK_2 = "Are you prepared to make a representation of the fact here?"
 
 # replace prompt text based on whether we want distributional or comparative metrics
-TEMPLATES = {
-    "distributional": PROMPT.replace("{classification_type}", DISTRIBUTIONAL_INSTRUCTION).replace("{remark2}", ""),
-    "comparative": PROMPT.replace("{classification_type}", COMPARATIVE_INSTRUCTION).replace("{remark2", REMARK_2)
+METRIC_TEMPLATES = {
+    "distributional": METRIC_PROMPT.replace("{classification_type}", DISTRIBUTIONAL_INSTRUCTION).replace("{remark2}", ""),
+    "comparative": METRIC_PROMPT.replace("{classification_type}", COMPARATIVE_INSTRUCTION).replace("{remark2", REMARK_2)
 }
+
+QUESTION_GENERATION_PROMPT = '''{role}
+    Facts of the Case: {facts_of_the_case}
+    Legal Question: {legal_question}
+
+You will be presented with the transcript of the oral argument up until the current turn. You will then have the floor. Your task is to generate the next remark, question or statement, that furthers the oral argument. 
+{emphasis}
+
+Output your remark and ONLY your remark.'''

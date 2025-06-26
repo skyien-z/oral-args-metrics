@@ -21,7 +21,19 @@ class VllmModel(BaseModel):
                 max_tokens=500
         )
 
-    def generate(self, messages: str) -> str:
+    def generate(self, messages: str, greedy_generation: bool) -> str:
+        from vllm import SamplingParams
         formatted_prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-        outputs = self.llm.generate(formatted_prompt, self.sampling_params)
+        if greedy_generation:
+            sampling_params = SamplingParams(
+                temperature=0.0,
+                top_k=1,
+                top_p=1.0,
+                repetition_penalty=1.0,
+                max_tokens=500
+            )
+            outputs = self.llm.generate(formatted_prompt, self.sampling_params)
+        else:
+            # non-greedy generation
+            outputs = self.llm.generate(formatted_prompt)
         return outputs[0].outputs[0].text  # .replace(".", "") -- add back if necessary, depending on generation
