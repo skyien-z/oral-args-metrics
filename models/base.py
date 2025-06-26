@@ -41,7 +41,7 @@ class BaseModel(ABC):
 def get_model(model_type: str, **kwargs) -> BaseModel:
     if model_type == "vllm":
         from models import VllmModel
-        return VllmModel(kwargs["model_path"])
+        return VllmModel(kwargs["model_path"], kwargs["make_greedy"])
     elif model_type == "openai":
         from models import OpenAIModel
         return OpenAIModel(api_key=kwargs["api_key"])
