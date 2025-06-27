@@ -1,0 +1,3 @@
+defaults:
+#  - override hydra/launcher: submitit_slurm
+  - job_types: question_gen

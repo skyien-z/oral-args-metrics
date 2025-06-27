@@ -1,43 +1,20 @@
 import pandas as pd
-import argparse
 from models.base import get_model
+import hydra
+from omegaconf import DictConfig, OmegaConf
 
 
-def main():
-    parser = argparse.ArgumentParser()
+@hydra.main(version_base=None, config_path="conf/job_types", config_name="metrics")
+def main(cfg: DictConfig) -> None:
     parser.add_argument('input_csv_path', help="Need an input files on which to run script!")
     parser.add_argument('output_csv_path', help="Need an output path to save your metrics!")
 
-    parser.add_argument('--model', choices=["vllm", "openai"], required=True)
-    parser.add_argument("--model-path", type=str,
-                        default='/scratch/gpfs/kz9921/transformer_cache/Llama-3.3-70B-Instruct',
-                        help="Path to local model")
-    parser.add_argument("--api-key", type=str, help="OpenAI API key")
-    args = parser.parse_args()
-
-    if args.model == "vllm" and not args.model_path:
-        raise ValueError("model-path is required for vllm model")
-    if args.model == "openai" and not args.api_key:
+    if cfg.model_type == 'openai' and not cfg.api_key:
         raise ValueError("api-key is required for OpenAI model")
 
-    model = get_model(args.model, model_path=args.model_path, api_key=args.api_key)
+    model = get_model(cfg.model_type, model_path=cfg.model_path, cfg=args.api_key)
+    aggregate_metrics = OmegaConf.to_container(cfg.metrics_to_classify)
 
-    # map metric definition to how we want to store them in the csv
-    aggregate_metrics = {"VALENCE": "valence", "LEGALBENCH": "legalbench", "METACOG": "metacog", "STETSON": "stetson",
-                         "ARGUMENT_CONSISTENCY_AND_CORRECTNESS": "arg_consistency", "SYCOPHANCY": "sycophancy",
-                         "CONSISTENCY_WITH_STATUTORY_INTERPRETATION": "statutory_interp",
-                         "CONSISTENCY_WITH_POLITICAL_IDEOLOGY": "political_ideology"}
-                        #  "RUBRIC_SIMILARITY": "rubric_similarity"}
-
-    # add os metrics
-    df = pd.read_csv(args.input_csv_path)  # read in jsonl
-    for metric in aggregate_metrics.keys():
-        df[f"{args.model}_{aggregate_metrics[metric]}"] = df.apply(
-            lambda row: model.classify_metric(metric,
-                                              row["context"],
-                                              row["justice"],
-                                              row["question_text"]), axis=1)
-    print(df)
     df.to_csv(args.output_csv_path, index=False)
 
 

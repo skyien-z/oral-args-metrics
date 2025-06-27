@@ -3,7 +3,7 @@ from models import BaseModel
 
 class VllmModel(BaseModel):
     def __init__(self, model_path: str):
-        from vllm import LLM, SamplingParams
+        from vllm import LLM
         from transformers import AutoTokenizer
 
         # model loaded with vllm
@@ -11,15 +11,6 @@ class VllmModel(BaseModel):
         
         # model's tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-
-        # greedy decoding sampling parameters
-        self.sampling_params = SamplingParams(
-                temperature=0.0,
-                top_k=1,
-                top_p=1.0,
-                repetition_penalty=1.0,
-                max_tokens=500
-        )
 
     def generate(self, messages: str, greedy_generation: bool) -> str:
         from vllm import SamplingParams
@@ -32,7 +23,7 @@ class VllmModel(BaseModel):
                 repetition_penalty=1.0,
                 max_tokens=500
             )
-            outputs = self.llm.generate(formatted_prompt, self.sampling_params)
+            outputs = self.llm.generate(formatted_prompt, sampling_params)
         else:
             # non-greedy generation
             outputs = self.llm.generate(formatted_prompt)
