@@ -1,7 +1,17 @@
+defaults:
+  - override hydra/launcher: submitit_slurm
+
+hydra:
+  launcher:
+    timeout_min: 120
+    mem_gb: 8
+    partition: pli-c
+    gres: gpu:2
+
 # 'vllm' or 'openai'
 model_type: vllm
 # 'Llama-3.3-70B-Instruct' or 'Qwen2.5-32B' or 'Qwen3-32B'
-model_path: /scratch/gpfs/kz9921/transformer_cache/Llama-3.3-70B-Instruct
+model_path: /scratch/gpfs/kz9921/transformer_cache/Qwen3-32B
 # api-key=<key> on your command line
 api_key:
 prompting_strategies: [SCOTUS_DEFAULT, SCOTUS_PROFILE, 1L_PROF, MOOT_COURT, JOB_INTERVIEW]

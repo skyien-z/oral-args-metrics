@@ -15,7 +15,7 @@ class OpenAIModel(BaseModel):
             response = self.client.chat.completions.create(
                 model="gpt-4o",
                 temperature=0.0,
-                max_tokens=100,
+                max_tokens=300,
                 top_p=1.0,
                 messages=messages
             )

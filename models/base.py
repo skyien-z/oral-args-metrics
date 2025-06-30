@@ -55,13 +55,11 @@ class BaseModel(ABC):
     def classify_metric(self, classifier_name: str, context: str, justice: str, remark: str, remark1=None) -> str:
         messages = get_metrics_prompt(classifier_name, context, justice, remark, remark1)
         response = self.generate(messages, greedy_generation=True)  # calls child class's concrete implementation
-        print(response)
         return response
 
     def generate_question(self, prompting_strategy: str, facts: str, legal_question: str, justice: str, context: str):
         messages = get_question_generation_prompt(prompting_strategy, facts, legal_question, justice, context)
-        response = self.generate(messages, greedy_generation=False)
-        print(response)
+        response = self.generate(messages, greedy_generation=True)
         return response
 
 
