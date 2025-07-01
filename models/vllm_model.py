@@ -2,12 +2,12 @@ from models import BaseModel
 
 
 class VllmModel(BaseModel):
-    def __init__(self, model_path: str):
+    def __init__(self, model_path: str, num_gpus=4):
         from vllm import LLM
         from transformers import AutoTokenizer
 
         # model loaded with vllm
-        self.llm = LLM(model=model_path, tensor_parallel_size=4)
+        self.llm = LLM(model=model_path, tensor_parallel_size=num_gpus)
         
         # model's tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)

@@ -29,7 +29,7 @@ def question_gen_main(cfg: DictConfig) -> None:
     if cfg.model_type == 'openai' and not cfg.api_key:
         raise ValueError("api-key is required for OpenAI model")
 
-    model = get_model(cfg.model_type, model_path=cfg.model_path, api_key=cfg.api_key, num_gpus=int(cfg.number_gpus))
+    model = get_model(cfg.model_type, model_path=cfg.model_path, api_key=cfg.api_key)
     prompting_strategies = OmegaConf.to_container(cfg.prompting_strategies)
     # open the metrics database view that contains all case information
     conn = sqlite3.connect("data/automated_metrics.db")
