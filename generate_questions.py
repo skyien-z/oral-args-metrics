@@ -2,7 +2,6 @@ import pandas as pd
 from models.base import get_model
 import hydra
 from omegaconf import DictConfig, OmegaConf
-from hydra.core.hydra_config import HydraConfig
 import sqlite3
 import re
 from datetime import datetime
@@ -21,21 +20,17 @@ def get_model_name(model_type, model_path):
 def get_log_id():
     hydra_cfg = hydra.core.hydra_config.HydraConfig.get()
     logging_dir = hydra_cfg['runtime']['output_dir']
-    return re.search(r'outputs/(.+)', logging_dir).group(1)
+    # log_id might can start with 'output/' or 'multiturn/'
+    return re.search(r'oral_args_metrics/(.+)', logging_dir).group(1)
 
 
 @hydra.main(version_base=None, config_path="conf/config_files", config_name="question_gen")
 def question_gen_main(cfg: DictConfig) -> None:
-    launcher_cfg = HydraConfig.get().launcher
-    print("Active launcher config:")
-    print(OmegaConf.to_yaml(launcher_cfg))
-
     if cfg.model_type == 'openai' and not cfg.api_key:
         raise ValueError("api-key is required for OpenAI model")
 
-    model = get_model(cfg.model_type, model_path=cfg.model_path, api_key=cfg.api_key)
+    model = get_model(cfg.model_type, model_path=cfg.model_path, api_key=cfg.api_key, num_gpus=int(cfg.number_gpus))
     prompting_strategies = OmegaConf.to_container(cfg.prompting_strategies)
-
     # open the metrics database view that contains all case information
     conn = sqlite3.connect("data/automated_metrics.db")
     conn.execute("PRAGMA foreign_keys = ON;")
@@ -59,7 +54,7 @@ def question_gen_main(cfg: DictConfig) -> None:
             additional_remarks.append((remark_id, model_name, strategy, row["justice"], generated_remark, 
                                        log_id, row["context_id"]))
         
-        # insert into DB every 100 questions or at the end of processing
+        # insert into DB every 50 questions (250 runs) or at the end of processing
         if index % 50 == 49 or index == len(cases_df) - 1:
             print(additional_remarks)
             cursor.executemany(remark_addition_query, additional_remarks)

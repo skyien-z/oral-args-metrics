@@ -1,17 +1,26 @@
+# 'vllm' or 'openai'
+model_type: vllm
+# 'Llama-3.3-70B-Instruct' or 'Qwen2.5-32B' or 'Qwen3-32B'
+model_path: /scratch/gpfs/kz9921/transformer_cache/Qwen2.5-32B
+# api-key=<key> on your command line
+api_key:
+# all existing strategies are set
+prompting_strategies: [SCOTUS_DEFAULT, SCOTUS_PROFILE, 1L_PROF, MOOT_COURT, JOB_INTERVIEW]
+# see if var works
+number_gpus: 2
+
+# COMMENT OUT IF RUNNING GPT4o WITH OPENAI
 defaults:
   - override hydra/launcher: submitit_slurm
 
 hydra:
   launcher:
-    timeout_min: 120
+    timeout_min: 5
     mem_gb: 8
     partition: pli-c
-    gres: gpu:2
-
-# 'vllm' or 'openai'
-model_type: vllm
-# 'Llama-3.3-70B-Instruct' or 'Qwen2.5-32B' or 'Qwen3-32B'
-model_path: /scratch/gpfs/kz9921/transformer_cache/Qwen3-32B
-# api-key=<key> on your command line
-api_key:
-prompting_strategies: [SCOTUS_DEFAULT, SCOTUS_PROFILE, 1L_PROF, MOOT_COURT, JOB_INTERVIEW]
+    gres: gpu:${number_gpus}
+    setup:
+      - export HYDRA_FULL_ERROR=1
+      - module purge
+      - module load anaconda3/2024.6
+      - conda activate vllm_env

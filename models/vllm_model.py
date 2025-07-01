@@ -1,12 +1,13 @@
 from models import BaseModel
 
+
 class VllmModel(BaseModel):
     def __init__(self, model_path: str):
         from vllm import LLM
         from transformers import AutoTokenizer
 
         # model loaded with vllm
-        self.llm = LLM(model=model_path, tensor_parallel_size=2)
+        self.llm = LLM(model=model_path, tensor_parallel_size=4)
         
         # model's tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
@@ -20,7 +21,7 @@ class VllmModel(BaseModel):
                 top_k=1,
                 top_p=1.0,
                 repetition_penalty=1.0,
-                max_tokens=1200
+                max_tokens=500
             )
             outputs = self.llm.generate(formatted_prompt, sampling_params)
         else:
@@ -30,7 +31,7 @@ class VllmModel(BaseModel):
                 top_k=10,
                 top_p=0.95,
                 repetition_penalty=1.0,
-                max_tokens=1200
+                max_tokens=500
             )
             outputs = self.llm.generate(formatted_prompt)
         return outputs[0].outputs[0].text  # .replace(".", "") -- add back if necessary, depending on generation
