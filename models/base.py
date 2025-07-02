@@ -66,7 +66,7 @@ class BaseModel(ABC):
 def get_model(model_type: str, **kwargs) -> BaseModel:
     if model_type == "vllm":
         from models import VllmModel
-        return VllmModel(kwargs["model_path"], kwargs["num_gpus"])
+        return VllmModel(kwargs["model_path"])
     elif model_type == "openai":
         from models import OpenAIModel
         return OpenAIModel(api_key=kwargs["api_key"])

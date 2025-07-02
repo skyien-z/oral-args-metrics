@@ -2,12 +2,15 @@ from models import BaseModel
 
 
 class VllmModel(BaseModel):
-    def __init__(self, model_path: str, num_gpus=4):
+    def __init__(self, model_path: str, num_gpus=2):
         from vllm import LLM
         from transformers import AutoTokenizer
 
         # model loaded with vllm
-        self.llm = LLM(model=model_path, tensor_parallel_size=num_gpus)
+        if "bnb" in model_path:
+            self.llm = LLM(model=model_path, quantization="bitsandbytes", load_format="bitsandbytes", max_model_len=8192 * 4)
+        else:
+            self.llm = LLM(model=model_path, max_model_len=8192)
         
         # model's tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)

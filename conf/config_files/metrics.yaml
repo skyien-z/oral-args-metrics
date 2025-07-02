@@ -1,6 +1,6 @@
 
 # 'vllm' or 'openai'
-model_type: vllm
+model_type: openai
 # 'Llama-3.3-70B-Instruct' or 'Qwen2.5-32B' or 'Qwen3-32B'
 model_path: /scratch/gpfs/kz9921/transformer_cache/Llama-3.3-70B-Instruct
 # api-key=<key> on your command line
@@ -8,3 +8,5 @@ api_key:
 # possible metrics also include RUBRIC_SIMILARITY
 metrics_to_classify: [VALENCE, LEGALBENCH, METACOG, STETSON, ARGUMENT_CONSISTENCY_AND_CORRECTNESS, SYCOPHANCY,
                       CONSISTENCY_WITH_STATUTORY_INTERPRETATION, CONSISTENCY_WITH_POLITICAL_IDEOLOGY]
+# run metrics only on remarks with log_ids 
+log_ids:
