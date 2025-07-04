@@ -6,9 +6,12 @@ class VllmModel(BaseModel):
         from vllm import LLM
         from transformers import AutoTokenizer
 
-        # model loaded with vllm
-        if "bnb" in model_path:
+        # model loaded with vllm 
+        # !TODO FIX
+        if "70B" in model_path:
             self.llm = LLM(model=model_path, quantization="bitsandbytes", load_format="bitsandbytes", max_model_len=8192 * 4)
+        elif "Qwen3" in model_path:
+            self.llm = LLM(model=model_path, max_model_len=8192 * 4)
         else:
             self.llm = LLM(model=model_path, max_model_len=8192)
         
@@ -26,7 +29,6 @@ class VllmModel(BaseModel):
                 repetition_penalty=1.0,
                 max_tokens=500
             )
-            outputs = self.llm.generate(formatted_prompt, sampling_params)
         else:
             # non-greedy generation
             sampling_params = SamplingParams(
@@ -36,5 +38,9 @@ class VllmModel(BaseModel):
                 repetition_penalty=1.0,
                 max_tokens=500
             )
-            outputs = self.llm.generate(formatted_prompt)
+        #!TODO FIX! THIS IS TO CATCH LONG CONTEXTS B/C QWEN2.5-INSTRUCT ERRORS OUT
+        try:
+            outputs = self.llm.generate(formatted_prompt, sampling_params)
+        except Exception as e:
+            return f"Error: {e}"
         return outputs[0].outputs[0].text  # .replace(".", "") -- add back if necessary, depending on generation

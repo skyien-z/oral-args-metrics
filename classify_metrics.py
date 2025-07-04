@@ -3,26 +3,8 @@ from models.base import get_model
 import hydra
 from omegaconf import DictConfig, OmegaConf
 import sqlite3
-import re
-from datetime import datetime
-import hashlib
 import ast
-
-def make_metric_id(model_name, metric_title):
-    unique_string = f"{model_name}_{metric_title}_{datetime.now()}"
-    return hashlib.md5(unique_string.encode()).hexdigest()
-
-def get_model_name(model_type, model_path):
-    if model_type == "openai":
-        return "gpt4o"
-    # model is local
-    return re.search(r'transformer_cache/(.+)', model_path).group(1)
-
-def get_log_id():
-    hydra_cfg = hydra.core.hydra_config.HydraConfig.get()
-    logging_dir = hydra_cfg['runtime']['output_dir']
-    # log_id might can start with 'output/' or 'multiturn/'
-    return re.search(r'oral_args_metrics/(.+)', logging_dir).group(1)
+import utils.main_utils as utils
 
 def incorporate_facts_to_context(case_facts, legal_question, context):
     context_list = ast.literal_eval(context)
@@ -31,6 +13,7 @@ def incorporate_facts_to_context(case_facts, legal_question, context):
     context_list.insert(0, system_prompt)
     return str(context_list)
 
+
 @hydra.main(version_base=None, config_path="conf/config_files", config_name="metrics")
 def metrics_main(cfg: DictConfig) -> None:
     if cfg.model_type == 'openai' and not cfg.api_key:
@@ -38,12 +21,15 @@ def metrics_main(cfg: DictConfig) -> None:
 
     model = get_model(cfg.model_type, model_path=cfg.model_path, api_key=cfg.api_key)
     metrics_list = OmegaConf.to_container(cfg.metrics_to_classify)
+    remark_log_ids = OmegaConf.to_container(cfg.log_ids)
     # open the metrics database view that contains all case information
     conn = sqlite3.connect("data/automated_metrics.db")
     conn.execute("PRAGMA foreign_keys = ON;")
     cursor = conn.cursor()
+    
+    # !TODO Careful, the next line is very brittle; yeah straight up make a func. This only works with one log_id sadge
+    cases_df = pd.read_sql_query(f"SELECT * from remark_transcript_context WHERE remark_log_id IN (\'{', '.join(remark_log_ids)}\');", conn) 
 
-    cases_df = pd.read_sql_query("SELECT * from remark_transcript_context;", conn) #TODO WHERE comparison with q gen log ids
     metric_addition_query = "INSERT INTO distributional_metrics (distributional_metric_id, classification_model, metric_name, " \
                             "classification, remark_id, log_id) VALUES (?, ?, ?, ?, ?, ?)"
     additional_metrics = []
@@ -55,9 +41,9 @@ def metrics_main(cfg: DictConfig) -> None:
                                                      justice=row["justice"], 
                                                      remark=row["remark_text"])
 
-            model_name = get_model_name(cfg.model_type, cfg.model_path)
-            log_id = get_log_id()
-            metric_id = make_metric_id(model_name, metric_title)
+            model_name = utils.get_model_name(cfg.model_type, cfg.model_path)
+            log_id = utils.get_log_id()
+            metric_id = utils.make_remark_or_metric_id(model_name, metric_title)
             additional_metrics.append((metric_id, model_name, metric_title, generated_classification, 
                                        row["remark_id"], log_id))
         

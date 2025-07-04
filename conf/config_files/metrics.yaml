@@ -8,5 +8,5 @@ api_key:
 # possible metrics also include RUBRIC_SIMILARITY
 metrics_to_classify: [VALENCE, LEGALBENCH, METACOG, STETSON, ARGUMENT_CONSISTENCY_AND_CORRECTNESS, SYCOPHANCY,
                       CONSISTENCY_WITH_STATUTORY_INTERPRETATION, CONSISTENCY_WITH_POLITICAL_IDEOLOGY]
-# run metrics only on remarks with log_ids 
-log_ids:
+# run metrics only on remarks with log_ids below: allows for targeted classifications
+log_ids: [2025-06-30/17-08-48]
