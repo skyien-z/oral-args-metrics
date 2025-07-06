@@ -2,8 +2,11 @@ import pandas as pd
 from models.base import get_model
 import hydra
 from omegaconf import DictConfig, OmegaConf
-import sqlite3
 import utils.main_utils as utils
+
+GET_CASES_QUERY = "SELECT * from hundred_sampled_transcript_and_context;"
+ADD_REMARK_QUERY = "INSERT INTO remark (remark_id, model, prompting_strategy, justice, " \
+                        "remark_text, log_id, context_id) VALUES (?, ?, ?, ?, ?, ?, ?);"
 
 @hydra.main(version_base=None, config_path="conf/config_files", config_name="question_gen")
 def question_gen_main(cfg: DictConfig) -> None:
@@ -12,14 +15,11 @@ def question_gen_main(cfg: DictConfig) -> None:
 
     model = get_model(cfg.model_type, model_path=cfg.model_path, api_key=cfg.api_key)
     prompting_strategies = OmegaConf.to_container(cfg.prompting_strategies)
-    # open the metrics database view that contains all case information
-    conn = sqlite3.connect("data/automated_metrics.db")
-    conn.execute("PRAGMA foreign_keys = ON;")
-    cursor = conn.cursor()
 
-    cases_df = pd.read_sql_query("SELECT * from hundred_sampled_transcript_and_context;", conn)
-    remark_addition_query = "INSERT INTO remark (remark_id, model, prompting_strategy, justice, " \
-                            "remark_text, log_id, context_id) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    # open the metrics database view that contains all case information
+    conn, cursor = utils.connect_to_db("data/automated_metrics.db")
+    cases_df = pd.read_sql_query(GET_CASES_QUERY, conn)
+    
     additional_remarks = []
     for index, row in cases_df.iterrows():
         for strategy in prompting_strategies:
@@ -37,9 +37,7 @@ def question_gen_main(cfg: DictConfig) -> None:
         
         # insert into DB every 50 questions (250 runs) or at the end of processing
         if index % 50 == 49 or index == len(cases_df) - 1:
-            print(additional_remarks)
-            cursor.executemany(remark_addition_query, additional_remarks)
-
+            cursor.executemany(ADD_REMARK_QUERY, additional_remarks)
             conn.commit()
             additional_remarks = []
     

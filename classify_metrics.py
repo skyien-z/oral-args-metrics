@@ -2,9 +2,12 @@ import pandas as pd
 from models.base import get_model
 import hydra
 from omegaconf import DictConfig, OmegaConf
-import sqlite3
 import ast
 import utils.main_utils as utils
+
+GET_CASES_QUERY = "SELECT * from remark_transcript_context WHERE remark_log_id IN {log_list};"
+ADD_METRIC_QUERY = "INSERT INTO distributional_metrics (distributional_metric_id, classification_model, metric_name, " \
+                            "classification, remark_id, log_id) VALUES (?, ?, ?, ?, ?, ?);"
 
 def incorporate_facts_to_context(case_facts, legal_question, context):
     context_list = ast.literal_eval(context)
@@ -12,6 +15,18 @@ def incorporate_facts_to_context(case_facts, legal_question, context):
     'role': 'system'}
     context_list.insert(0, system_prompt)
     return str(context_list)
+
+
+def make_logs_into_sql_list(remark_log_ids):
+    # returns string, bookmarked with parentheses, of sqlite search 
+    # with remark_log_ids as data
+    sql_list_str = "("
+    for i, log_id in enumerate(remark_log_ids):
+        sql_list_str += f"\'{log_id}\'"
+        if i < len(remark_log_ids) - 1:
+            sql_list_str += ", "
+    sql_list_str += ')'
+    return sql_list_str
 
 
 @hydra.main(version_base=None, config_path="conf/config_files", config_name="metrics")
@@ -23,15 +38,9 @@ def metrics_main(cfg: DictConfig) -> None:
     metrics_list = OmegaConf.to_container(cfg.metrics_to_classify)
     remark_log_ids = OmegaConf.to_container(cfg.log_ids)
     # open the metrics database view that contains all case information
-    conn = sqlite3.connect("data/automated_metrics.db")
-    conn.execute("PRAGMA foreign_keys = ON;")
-    cursor = conn.cursor()
-    
-    # !TODO Careful, the next line is very brittle; yeah straight up make a func. This only works with one log_id sadge
-    cases_df = pd.read_sql_query(f"SELECT * from remark_transcript_context WHERE remark_log_id IN (\'{', '.join(remark_log_ids)}\');", conn) 
+    conn, cursor = utils.connect_to_db("data/automated_metrics.db")
+    cases_df = pd.read_sql_query(GET_CASES_QUERY.format(log_list=make_logs_into_sql_list(remark_log_ids)), conn) 
 
-    metric_addition_query = "INSERT INTO distributional_metrics (distributional_metric_id, classification_model, metric_name, " \
-                            "classification, remark_id, log_id) VALUES (?, ?, ?, ?, ?, ?)"
     additional_metrics = []
     for index, row in cases_df.iterrows():
         for metric_title in metrics_list:
@@ -49,8 +58,7 @@ def metrics_main(cfg: DictConfig) -> None:
         
         # insert into DB every 20 questions (160 runs) or at the end of processing
         if index % 20 == 19 or index == len(cases_df) - 1:
-            cursor.executemany(metric_addition_query, additional_metrics)
-
+            cursor.executemany(ADD_METRIC_QUERY, additional_metrics)
             conn.commit()
             additional_metrics = []
     
