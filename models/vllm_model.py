@@ -32,8 +32,8 @@ class VllmModel(BaseModel):
         else:
             # non-greedy generation
             sampling_params = SamplingParams(
-                temperature=1.0,
-                top_k=10,
+                temperature=0.7,
+                top_k=5,
                 top_p=0.95,
                 repetition_penalty=1.0,
                 max_tokens=500

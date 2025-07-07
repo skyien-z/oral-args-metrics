@@ -2,6 +2,7 @@ import prompts.prompt_templates as prompts
 import prompts.automated_metrics as automated_metrics
 import prompts.question_generation as question_generation
 from abc import ABC, abstractmethod
+import re
 
 
 def get_metrics_prompt(metric_name: str, context: str, justice: str, remark: str, remark1: str) -> str:
@@ -46,6 +47,14 @@ def get_question_generation_prompt(prompting_strategy: str, facts: str, legal_qu
 
     return messages
 
+def postprocess_remark(text: str) -> str:
+    if not text:
+        return text
+    text = re.sub(r'^(<[^>]+>|[\w\s]+):\s*', '', text)
+    text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+    text = re.sub(r'^["\']|["\']$', '', text)
+    text = re.sub(r'^\*\*[^:]+:\*\*\s*', '', text)
+    return text.strip()
 
 class BaseModel(ABC):
     @abstractmethod
@@ -60,7 +69,7 @@ class BaseModel(ABC):
     def generate_question(self, prompting_strategy: str, facts: str, legal_question: str, justice: str, context: str):
         messages = get_question_generation_prompt(prompting_strategy, facts, legal_question, justice, context)
         response = self.generate(messages, greedy_generation=True)
-        return response
+        return postprocess_remark(response)
 
 
 def get_model(model_type: str, **kwargs) -> BaseModel:

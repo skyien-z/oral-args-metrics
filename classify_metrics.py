@@ -2,31 +2,11 @@ import pandas as pd
 from models.base import get_model
 import hydra
 from omegaconf import DictConfig, OmegaConf
-import ast
 import utils.main_utils as utils
 
 GET_CASES_QUERY = "SELECT * from remark_transcript_context WHERE remark_log_id IN {log_list};"
 ADD_METRIC_QUERY = "INSERT INTO distributional_metrics (distributional_metric_id, classification_model, metric_name, " \
                             "classification, remark_id, log_id) VALUES (?, ?, ?, ?, ?, ?);"
-
-def incorporate_facts_to_context(case_facts, legal_question, context):
-    context_list = ast.literal_eval(context)
-    system_prompt = {'content': f"""You are a legal expert trained to simulate Supreme Court oral arguments.\n\nFACTS_OF_THE_CASE:\n{case_facts}\n\nLEGAL_QUESTION:\n{legal_question}""",
-    'role': 'system'}
-    context_list.insert(0, system_prompt)
-    return str(context_list)
-
-
-def make_logs_into_sql_list(remark_log_ids):
-    # returns string, bookmarked with parentheses, of sqlite search 
-    # with remark_log_ids as data
-    sql_list_str = "("
-    for i, log_id in enumerate(remark_log_ids):
-        sql_list_str += f"\'{log_id}\'"
-        if i < len(remark_log_ids) - 1:
-            sql_list_str += ", "
-    sql_list_str += ')'
-    return sql_list_str
 
 
 @hydra.main(version_base=None, config_path="conf/", config_name="classify_metrics")
@@ -40,12 +20,12 @@ def metrics_main(cfg: DictConfig) -> None:
 
     # open the metrics database view that contains all case information
     conn, cursor = utils.connect_to_db("data/automated_metrics.db")
-    cases_df = pd.read_sql_query(GET_CASES_QUERY.format(log_list=make_logs_into_sql_list(remark_log_ids)), conn) 
+    cases_df = pd.read_sql_query(GET_CASES_QUERY.format(log_list=utils.make_logs_into_sql_list(remark_log_ids)), conn) 
 
     additional_metrics = []
     for index, row in cases_df.iterrows():
         for metric_title in metrics_list:
-            reformatted_context = incorporate_facts_to_context(row["case_facts"], row["legal_question"], row["context"])
+            reformatted_context = utils.incorporate_facts_to_context(row["case_facts"], row["legal_question"], row["context"])
             generated_classification = model.classify_metric(classifier_name=metric_title, 
                                                      context=reformatted_context, 
                                                      justice=row["justice"], 
