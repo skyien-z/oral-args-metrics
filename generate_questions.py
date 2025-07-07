@@ -8,12 +8,13 @@ GET_CASES_QUERY = "SELECT * from hundred_sampled_transcript_and_context;"
 ADD_REMARK_QUERY = "INSERT INTO remark (remark_id, model, prompting_strategy, justice, " \
                         "remark_text, log_id, context_id) VALUES (?, ?, ?, ?, ?, ?, ?);"
 
-@hydra.main(version_base=None, config_path="conf/config_files", config_name="question_gen")
+@hydra.main(version_base=None, config_path="conf/", config_name="generate_questions")
 def question_gen_main(cfg: DictConfig) -> None:
+    print(cfg.num_gpus)
     if cfg.model_type == 'openai' and not cfg.api_key:
         raise ValueError("api-key is required for OpenAI model")
 
-    model = get_model(cfg.model_type, model_path=cfg.model_path, api_key=cfg.api_key)
+    model = get_model(cfg.model_type, model_path=cfg.model_path, api_key=cfg.api_key, num_gpus=cfg.num_gpus)
     prompting_strategies = OmegaConf.to_container(cfg.prompting_strategies)
 
     # open the metrics database view that contains all case information

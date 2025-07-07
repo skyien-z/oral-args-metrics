@@ -1,8 +1,0 @@
-# 'vllm' or 'openai'
-model_type: vllm
-# 'Llama-3.3-70B-Instruct' or 'Qwen2.5-32B' or 'Qwen3-32B'
-model_path: /scratch/gpfs/kz9921/transformer_cache/Qwen2.5-32B-Instruct
-# api-key=<key> on your command line
-api_key:
-# all existing strategies are set
-prompting_strategies: [SCOTUS_DEFAULT, SCOTUS_PROFILE, 1L_PROF, MOOT_COURT, JOB_INTERVIEW]

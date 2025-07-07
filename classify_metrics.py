@@ -29,14 +29,15 @@ def make_logs_into_sql_list(remark_log_ids):
     return sql_list_str
 
 
-@hydra.main(version_base=None, config_path="conf/config_files", config_name="metrics")
+@hydra.main(version_base=None, config_path="conf/", config_name="classify_metrics")
 def metrics_main(cfg: DictConfig) -> None:
     if cfg.model_type == 'openai' and not cfg.api_key:
         raise ValueError("api-key is required for OpenAI model")
 
-    model = get_model(cfg.model_type, model_path=cfg.model_path, api_key=cfg.api_key)
+    model = get_model(cfg.model_type, model_path=cfg.model_path, api_key=cfg.api_key, num_gpus=cfg.num_gpus)
     metrics_list = OmegaConf.to_container(cfg.metrics_to_classify)
     remark_log_ids = OmegaConf.to_container(cfg.log_ids)
+
     # open the metrics database view that contains all case information
     conn, cursor = utils.connect_to_db("data/automated_metrics.db")
     cases_df = pd.read_sql_query(GET_CASES_QUERY.format(log_list=make_logs_into_sql_list(remark_log_ids)), conn) 

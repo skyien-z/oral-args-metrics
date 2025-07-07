@@ -9,11 +9,11 @@ class VllmModel(BaseModel):
         # model loaded with vllm 
         # !TODO FIX
         if "70B" in model_path:
-            self.llm = LLM(model=model_path, quantization="bitsandbytes", load_format="bitsandbytes", max_model_len=8192 * 4)
+            self.llm = LLM(model=model_path, quantization="bitsandbytes", load_format="bitsandbytes", max_model_len=8192 * 4, tensor_parallel_size=num_gpus)
         elif "Qwen3" in model_path:
-            self.llm = LLM(model=model_path, max_model_len=8192 * 4)
+            self.llm = LLM(model=model_path, gpu_memory_utilization=0.95, max_model_len=8192 * 2, tensor_parallel_size=num_gpus)
         else:
-            self.llm = LLM(model=model_path, max_model_len=8192)
+            self.llm = LLM(model=model_path, max_model_len=8192, tensor_parallel_size=num_gpus)
         
         # model's tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
@@ -38,9 +38,6 @@ class VllmModel(BaseModel):
                 repetition_penalty=1.0,
                 max_tokens=500
             )
-        #!TODO FIX! THIS IS TO CATCH LONG CONTEXTS B/C QWEN2.5-INSTRUCT ERRORS OUT
-        try:
-            outputs = self.llm.generate(formatted_prompt, sampling_params)
-        except Exception as e:
-            return f"Error: {e}"
+        outputs = self.llm.generate(formatted_prompt, sampling_params)
+
         return outputs[0].outputs[0].text  # .replace(".", "") -- add back if necessary, depending on generation
