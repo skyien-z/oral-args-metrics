@@ -1,0 +1,9 @@
+model_type: vllm
+model_path: /scratch/gpfs/kz9921/transformer_cache/Llama-3.3-70B-Instruct
+api_key: null
+prompting_strategies:
+- SCOTUS_DEFAULT
+- SCOTUS_PROFILE
+- 1L_PROF
+- MOOT_COURT
+- JOB_INTERVIEW

@@ -1,0 +1,14 @@
+model_type: openai
+model_path: /scratch/gpfs/kz9921/transformer_cache/Llama-3.3-70B-Instruct
+api_key: ac41e0c2475f4bbd92d734abe6a4506a
+metrics_to_classify:
+- VALENCE
+- LEGALBENCH
+- METACOG
+- STETSON
+- ARGUMENT_CONSISTENCY_AND_CORRECTNESS
+- SYCOPHANCY
+- CONSISTENCY_WITH_STATUTORY_INTERPRETATION
+- CONSISTENCY_WITH_POLITICAL_IDEOLOGY
+log_ids:
+- outputs/2025-07-02/13-05-10
