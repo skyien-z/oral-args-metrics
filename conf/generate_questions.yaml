@@ -11,8 +11,6 @@ prompting_strategies:
   - SCOTUS_PROFILE
   - 1L_PROF
   - MOOT_COURT
-  - JOB_INTERVIEW
-
 
 ##### HYDRA SLURM SUBMISSION #####
 #### COMMENT OUT IF RUNNING GPT4o WITH OPENAI or submitting a batch job through slurm ####

@@ -56,6 +56,9 @@ def postprocess_remark(text: str) -> str:
     text = re.sub(r'^\*\*[^:]+:\*\*\s*', '', text)
     return text.strip()
 
+def postprocess_metric(text: str) -> str:
+    return re.sub(r'^.*?[?:]\s*', '', text)
+
 class BaseModel(ABC):
     @abstractmethod
     def generate(self, prompt: str, greedy_generation: bool) -> str:
@@ -64,7 +67,7 @@ class BaseModel(ABC):
     def classify_metric(self, classifier_name: str, context: str, justice: str, remark: str, remark1=None) -> str:
         messages = get_metrics_prompt(classifier_name, context, justice, remark, remark1)
         response = self.generate(messages, greedy_generation=True)  # calls child class's concrete implementation
-        return response
+        return postprocess_metric(response)
 
     def generate_question(self, prompting_strategy: str, facts: str, legal_question: str, justice: str, context: str):
         messages = get_question_generation_prompt(prompting_strategy, facts, legal_question, justice, context)
