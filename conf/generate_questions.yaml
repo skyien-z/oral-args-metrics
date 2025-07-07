@@ -1,0 +1,36 @@
+##### GENERATE QUESTION CONFIG -- SBATCH OR HYDRA RUN #####
+# 'vllm' or 'openai'
+model_type: vllm
+# 'Llama-3.3-70B-Instruct' or 'Qwen3-32B'
+model_path: /scratch/gpfs/kz9921/transformer_cache/Qwen3-32B
+# api-key=<key> on your command line
+api_key:
+# all existing strategies are set
+prompting_strategies: 
+  - SCOTUS_DEFAULT
+  - SCOTUS_PROFILE
+  - 1L_PROF
+  - MOOT_COURT
+  - JOB_INTERVIEW
+
+
+##### HYDRA SLURM SUBMISSION #####
+#### COMMENT OUT IF RUNNING GPT4o WITH OPENAI or submitting a batch job through slurm ####
+defaults:
+  - override hydra/launcher: submitit_slurm
+
+# Make sure this number matches the gres value in the hydra-launcher! 
+# The normal yaml override won't work
+num_gpus: 2
+
+hydra:
+  launcher:
+    timeout_min: 120
+    mem_gb: 8
+    partition: pli-c
+    gres: gpu:2
+    setup:
+      - export HYDRA_FULL_ERROR=1
+      - module purge
+      - module load anaconda3/2024.6
+      - conda activate vllm_env
