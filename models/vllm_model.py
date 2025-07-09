@@ -8,8 +8,10 @@ class VllmModel(BaseModel):
 
         # model loaded with vllm 
         # !TODO FIX
-        if "70B" in model_path:
-            self.llm = LLM(model=model_path, quantization="bitsandbytes", load_format="bitsandbytes", max_model_len=8192 * 4, tensor_parallel_size=num_gpus)
+        if "bnb" in model_path:
+            self.llm = LLM(model=model_path, quantization="bitsandbytes", load_format="bitsandbytes", max_model_len=8192 * 4)
+        elif "Llama-3.3-70B-Instruct" in model_path:
+            self.llm = LLM(model=model_path, max_model_len=8192 * 4, tensor_parallel_size=num_gpus)
         elif "Qwen3" in model_path:
             self.llm = LLM(model=model_path, gpu_memory_utilization=0.95, max_model_len=8192 * 2, tensor_parallel_size=num_gpus)
         else:

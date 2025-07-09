@@ -4,13 +4,13 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 import utils.main_utils as utils
 
-GET_CASES_QUERY = "SELECT * from hundred_sampled_transcript_and_context;"
+DATABASE_PATH = "data/metrics_full_run.db"
+GET_CASES_QUERY = "SELECT * from transcript_and_context;"
 ADD_REMARK_QUERY = "INSERT INTO remark (remark_id, model, prompting_strategy, justice, " \
                         "remark_text, log_id, context_id) VALUES (?, ?, ?, ?, ?, ?, ?);"
 
 @hydra.main(version_base=None, config_path="conf/", config_name="generate_questions")
 def question_gen_main(cfg: DictConfig) -> None:
-    print(cfg.num_gpus)
     if cfg.model_type == 'openai' and not cfg.api_key:
         raise ValueError("api-key is required for OpenAI model")
 
@@ -18,7 +18,7 @@ def question_gen_main(cfg: DictConfig) -> None:
     prompting_strategies = OmegaConf.to_container(cfg.prompting_strategies)
 
     # open the metrics database view that contains all case information
-    conn, cursor = utils.connect_to_db("data/automated_metrics.db")
+    conn, cursor = utils.connect_to_db(DATABASE_PATH)
     cases_df = pd.read_sql_query(GET_CASES_QUERY, conn)
     
     additional_remarks = []
