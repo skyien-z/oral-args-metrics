@@ -1,0 +1,1 @@
+Scripts are generally clean. Files in `notebooks/` are generally messy.

@@ -1,0 +1,4 @@
+- model_type=openai
+- api_key=ac41e0c2475f4bbd92d734abe6a4506a
+- metrics_to_classify=[MOST_COMPETITIVE_RESPONSE]
+- log_ids=[manual]

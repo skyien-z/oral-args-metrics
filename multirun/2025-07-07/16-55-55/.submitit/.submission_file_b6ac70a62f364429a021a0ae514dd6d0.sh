@@ -1,0 +1,1 @@
+/home/kz9921/oral_args_metrics/multirun/2025-07-07/16-55-55/.submitit/65691395/65691395_submission.sh
