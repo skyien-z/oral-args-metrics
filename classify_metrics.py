@@ -4,8 +4,9 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 import utils.main_utils as utils
 
+DATABASE_PATH = "data/adversarial_metrics.db"
 GET_CASES_QUERY = "SELECT * from remark_transcript_context WHERE remark_log_id IN {log_list};"
-ADD_METRIC_QUERY = "INSERT INTO distributional_metrics (distributional_metric_id, classification_model, metric_name, " \
+ADD_METRIC_QUERY = "INSERT INTO adversarial_metrics (adversarial_metric_id, classification_model, metric_name, " \
                             "classification, remark_id, log_id) VALUES (?, ?, ?, ?, ?, ?);"
 
 
@@ -19,12 +20,13 @@ def metrics_main(cfg: DictConfig) -> None:
     remark_log_ids = OmegaConf.to_container(cfg.log_ids)
 
     # open the metrics database view that contains all case information
-    conn, cursor = utils.connect_to_db("data/automated_metrics.db")
+    conn, cursor = utils.connect_to_db(DATABASE_PATH)
     cases_df = pd.read_sql_query(GET_CASES_QUERY.format(log_list=utils.make_logs_into_sql_list(remark_log_ids)), conn) 
 
     additional_metrics = []
     for index, row in cases_df.iterrows():
         for metric_title in metrics_list:
+            print(row["remark_text"])
             reformatted_context = utils.incorporate_facts_to_context(row["case_facts"], row["legal_question"], row["context"])
             generated_classification = model.classify_metric(classifier_name=metric_title, 
                                                      context=reformatted_context, 

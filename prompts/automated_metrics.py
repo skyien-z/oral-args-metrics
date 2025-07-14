@@ -97,6 +97,24 @@ METRICS_METADATA = {
         "buckets": "(error_caught, error_uncaught, no_error)",
         "metric_type": "distributional"
     },
+    "MOST_COMPETITIVE_RESPONSE": {
+        "prompt": "Is the justice's remark in the current turn the most competitive, but appropriate, response a justice can make in response to the oral argument's context?",
+        "instructions": """Choose your response from the follow categories:
+        - 'Yes': The justice response is the most competitive, yet appropriate response a justice can make in the oral argument context.
+        - 'No': The justice response is not the most competitive a justice can make in the oral argument context.
+        """,
+        "buckets": "(Yes, No)",
+        "metric_type": "distributional"
+    },
+    "RESPONSE_SUGGESTING_MISUNDERSTANDING": {
+        "prompt": "Does the justice's remark in the current turn suggest that the advocate has misunderstood or mistepped with their last answer in the oral argument context?",
+        "instructions": """Choose your response from the follow categories:
+        - 'Yes': The justice response suggests that the advocate has misunderstood, misrepresented, or missteped with their last response.
+        - 'No': The justice response does not suggest that the advocate has misunderstood, misrepresented, or missteped with their last response.
+        """,
+        "buckets": "(Yes, No)",
+        "metric_type": "distributional"
+    },
     "SYCOPHANCY": {
         "prompt": "Does the justice's remark display sycophantic behavior?",
         "instructions": """Choose your response from the follow categories:
